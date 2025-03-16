@@ -1,0 +1,443 @@
+syntax = "proto3";
+
+package InputOutputDataProto;
+// 变量名不要使用大写字母
+
+message Quaternion {
+  double qw = 1;
+  double qx = 2;
+  double qy = 3;
+  double qz = 4;
+}
+
+message Eigen3D {
+  double x = 1;
+  double y = 2;
+  double z = 3;
+}
+
+message Affine3D {
+  double tx = 1;
+  double ty = 2;
+  double tz = 3;
+  double qw = 4;
+  double qx = 5;
+  double qy = 6;
+  double qz = 7;
+}
+
+message CalibParams {
+    Affine3D rfu_camera_pose_matrix = 1;
+    Affine3D base_camera_pos_matrix = 2;
+    repeated double camera_intrinsic_matrix = 3;
+    repeated double camera_distort_params = 4;
+}
+
+message StaticParams {
+    repeated double front_camera_ego_pose_matrix = 1;
+    repeated double rfu_ego_pose_matrix = 2;
+    repeated double baselink_odom_pose_matrix = 3;
+    repeated double camera_intrinsic_matrix_sim30 = 4;
+    Affine3D gnss2ego_transform = 5;
+    Affine3D sensor2gnss_transform = 6;
+    CalibParams front_cam = 7;
+    CalibParams back_cam = 8;
+    CalibParams front_right_cam = 9;
+    CalibParams front_left_cam = 10;
+    CalibParams back_right_cam = 11;
+    CalibParams back_left_cam = 12;
+}
+
+message VehicleStatus {
+    int64 frame_id = 1;
+    double timestamp = 2;
+    double velocity = 3;
+    double yaw_rate = 4;
+    double acc_lat = 5;
+    double acc_lon = 6;
+    Quaternion imu_world_rotation = 7;
+    Eigen3D imu_world_translation = 8;
+    double steer_wheel_angle = 9;
+}
+
+message DynamicParams {
+    VehicleStatus vehicle_status = 1;
+}
+
+message Header {
+    int32 frame_id = 1;
+    double timestamp = 2;      
+    double ori_timestamp = 3;
+    bool is_sim_30 = 4;
+    int32 radar_id = 5;
+}
+
+message LightClass {
+    uint32 indicate_brake_light = 1;
+    uint32 indicate_turn_light = 2;
+    uint32 indicate_hazard_light = 3;
+    bool valid = 4;
+}
+
+message Head {
+    double timestamp = 1;
+    int64 frame_id = 2;
+    int32 seq = 3;
+    string s_frame_id = 4;
+    Affine3D odom_baselink_pose_matrix = 5;
+    Affine3D gnss2global = 6;
+    Affine3D rfu_odom_pose_matrix = 7;
+    double velocity = 8;
+    double yaw_rate = 9;
+    double acc_lat = 10;
+    double acc_lon = 11;
+    double steer_wheel_angle = 12;
+}
+
+message TypeInfo {
+    uint32 type = 1;
+    uint32 fine_grain_class = 2;
+    uint32 source_mask = 3;
+}
+
+message Pose3D {
+    Eigen3D position = 1;
+    Quaternion orientation = 2;
+}
+
+message Covariance {
+    double longitudinal = 1;
+    double lateral = 2;
+    double angle = 3;
+}
+
+message Dimension {
+    double width = 1;
+    double length = 2;
+    double height = 3;
+}
+
+message MotionProfile {
+    Pose3D position = 1;
+    Eigen3D velocity = 2;
+    Eigen3D accelarition = 3;
+    Covariance covariance_position = 4;
+    Covariance covariance_veloctiy = 5;
+    Dimension dimension = 6;
+    Covariance bias = 7;
+    double angle = 8;
+    double curvature = 9;
+    uint32 sidenear = 10;
+    Eigen3D nearest_point = 11;
+}
+
+message TrackInfo {
+    uint32 track_state = 1;
+    MotionProfile motion_profile = 2;
+    double confidence = 3;
+    uint32 motion = 4;
+    uint32 motion_history = 5;
+    double life_time = 6;
+    LightClass out_light_class = 7;
+    uint32 fusion_src = 8;
+}
+
+message AEBStatus {
+    bool aeb_valid = 1;
+    bool fcw_valid = 2;
+    uint64 aeb_flag = 3;
+    uint64 fcw_flag = 4;
+    uint32 hp_flag = 5;
+    TypeInfo type_info = 6;
+    MotionProfile motion_profile = 7;
+}
+
+message CornerRadarFuncStatus {
+    bool corner_radar_warn_valid = 1;
+    bool corner_radar_brake_valid = 2;
+    uint64 corner_radar_warn_flag = 3;
+    uint64 corner_radar_brake_flag = 4;
+    TypeInfo type_info = 5;
+    MotionProfile motion_profile = 6;
+}
+
+message SpecialInfo {
+    uint32 light_mask = 1;
+    bool detect_wheel = 2;
+}
+
+message FusionTrackAttr {
+    uint32 remapped_id = 1;
+    uint32 vision_id = 2;
+    double front_priority = 3;
+    bool is_stationary = 4;
+    bool publish_valid = 5;
+    Box pre_label = 6;
+    EgoBox pre_label_ego = 7;
+}
+
+message CameraObjectSupplement {
+    repeated double rect = 1;
+    bool with_fine_cls = 2;
+    LightClass in_light_cls = 3;
+    uint32 in_fine_cls = 4;
+    repeated Eigen3D ground_points = 5;
+    repeated double tail_rect = 6;
+    double tail_conf = 7;
+    bool is_tail = 8;
+}
+
+message RadarObjectSupplement {
+    bool quality_valid = 1;
+    uint32 prob_of_exist = 2;
+    int32 track_id = 3;
+    int32 radar_id = 4;
+    double obstacle_probability = 5;
+    double orientation_angle = 6;
+    double self_velocity = 7;
+    double self_yaw_rate = 8;
+    double dist_y = 9;
+    double dist_x = 10;
+    double vabs_y = 11;
+    double vabs_x = 12;
+    double obj_x_acc_rel = 13;
+    double obj_y_acc_rel = 14;
+    uint32 classification = 15;
+    uint32 dynamic_property = 16;
+    double obj_box_center_lat = 17;
+    double obj_box_center_lgt = 18;
+    double obj_dx = 19;
+    double obj_dy = 20;
+    double obj_dx_std_de = 21;
+    double obj_dy_std_de = 22;
+    double obj_not_real_problty = 23;
+    double obj_vx_std_de = 24;
+    double obj_vy_std_de = 25;
+    double obj_mirr_problty = 26;
+    uint32 obj_ti_alv = 27;
+    uint32 obj_track_sts = 28;
+}
+
+message GeneralObject {
+    int32 id = 1;
+    uint32 channel = 2;
+    int32 lost_cnt = 3;
+    uint32 classification = 4;
+    Eigen3D center_position = 5;
+    Eigen3D nearest_position = 6;
+    Eigen3D left_position = 7;
+    Eigen3D right_position = 8;
+    uint32 pos_type = 9;
+    Eigen3D position_std = 10;
+    Eigen3D velocity_std = 11;
+    Eigen3D velocity_rel = 12;
+    Eigen3D velocity_abs = 13;
+    Eigen3D acceleration = 14;
+    Eigen3D acceleration_xyz_vel = 15;
+    Quaternion orientation = 16;
+    double yaw_std = 17;
+    Eigen3D lwh = 18;
+    double confidence = 19;
+    uint32 ped_sub_type = 20;
+    CameraObjectSupplement camera_object_supplement = 21;
+    RadarObjectSupplement radar_object_supplement = 22;
+}
+
+message SensorFrameGeneral {
+    Header frame_header = 1;
+    repeated GeneralObject sensor_detects = 2;
+}
+
+message LaneLineFitCurve {
+  double c0 = 1;
+  double c1 = 2;
+  double c2 = 3;
+  double c3 = 4;
+  double x_min = 5;
+  double x_max = 6;
+  bool fit_success = 7;
+  double err = 8;
+}
+
+message LaneLine3d {
+  int32 track_id = 1;
+  double x_min = 2;
+  double x_max = 3;
+  uint32 type = 4;
+  uint32 color_type = 5;
+  uint32 position_type = 6;
+  uint32 curb_type = 7;
+  bool shifted = 8;
+  int32 shifted_from = 9;
+  repeated LaneLineFitCurve curve_ego_coord_xy = 10;
+  repeated LaneLineFitCurve curve_ego_coord_xz = 11;
+  repeated LaneLineFitCurve back_curve_ego_coord_xy = 12;
+  repeated LaneLineFitCurve back_curve_ego_coord_xz = 13;
+  repeated LaneLineFitCurve whole_curve_ego_coord_xy = 14;
+  repeated LaneLineFitCurve whole_curve_ego_coord_xz = 15;
+}
+
+message OutputObject {
+    uint32 id = 1;
+    double timestamp = 2;
+    TypeInfo type_info = 3;
+    TrackInfo track_info = 4;
+    AEBStatus aeb_status = 5;
+    CornerRadarFuncStatus corner_radar_func_status = 6;
+    SpecialInfo special_info = 7;
+    FusionTrackAttr track_attr = 8; 
+}
+
+message InputData {
+    StaticParams static_params = 1;
+    DynamicParams dynamic_params = 2;
+    repeated SensorFrameGeneral radar_cache = 3;
+    repeated SensorFrameGeneral front_view_cache = 4;
+    repeated SensorFrameGeneral bev_cache = 5;
+    repeated LaneLine3d lane_cache = 6;
+    repeated LaneLine3d local_map_cache = 7;
+}
+
+message Box {
+    double timestamp = 1;
+    int64 track_id = 2;
+    int64 frame_id = 3;
+    double det_score = 4;
+    int32 det_class = 5;
+    int32 match_type = 6;
+    bool is_predict = 7;
+    int64 track_length = 8;
+    bool is_stationary = 9;
+    bool with_fine_cls = 10;
+    int32 in_fine_cls = 11;
+    int32 out_fine_cls = 12;
+    LightClass in_light_cls = 13;
+    LightClass out_light_cls = 14;
+    Eigen3D sensor_xyz = 15;
+    Quaternion sensor_orientation = 16;
+    Eigen3D lwh = 17;
+    Eigen3D detection_velocity = 18;
+    Eigen3D global_xyz = 19;
+    Quaternion global_orientation = 20;
+    Eigen3D global_xyz_fusion = 21;
+    Eigen3D lwh_fusion = 22;
+    Quaternion global_fusion_rot = 23;
+    Eigen3D global_velocity_output = 24;
+    Eigen3D global_acceleration_xyz = 25;
+    Eigen3D global_velocity_xyz = 26;
+    int32 front_priority = 27;
+    double fake_track_id = 28;
+    double global_velocity_confidence = 29;
+    double global_acceleration_confidence = 30;
+    Quaternion global_output_rot = 31;
+    int32 fusnsrcraw = 32;
+    Eigen3D global_velocity_cv = 33;
+    Eigen3D global_velocity_ctra = 34;
+    double global_majority_rot = 35;
+    bool has_stable_init = 36;
+    int32 filter_init_stable_cnt = 37;
+    int32 filter_init_unstable_cnt = 38;
+    int32 measure_filter_cnt = 39;
+    int32 un_measure_filter_cnt = 40;
+    bool new_born = 41;
+    Eigen3D global_xyz_filter = 42;
+    Eigen3D sensor_xyz_filter = 43;
+    Eigen3D sensor_velocity_xyz = 44;
+    Eigen3D sensor_acceleration_xyz = 45;
+    Eigen3D detection_acceleration = 46;
+    Eigen3D sensor_xyz_modality = 47;
+    Eigen3D global_xyz_modality = 48;
+    Eigen3D global_velocity_xyz_modality = 49;
+    Eigen3D global_acceleration_xyz_modality = 50;
+    double cv_velocity_var = 51;
+    bool is_cipv = 52;
+    Eigen3D global_acceleration_ctra = 53;
+    Eigen3D global_acceleration_cv_diff = 54;
+    int32 acc_switch_flag = 55;
+    Eigen3D global_velocity_measure_ctra = 56;
+    double modality_velocity_var = 57;
+    double ctra_velocity_var = 58;
+    int64 radar_track_id = 59;
+    int64 fusion_track_id = 60;
+    bool fusion_new_born = 61;
+    double fusion_timestamp = 62;
+    bool radar_acceleration_valid = 63;
+    bool radar_velocity_valid = 64;
+    int64 cipv_track_id = 65;
+    int64 track_fcw_flag = 66;
+    int32 move_dir = 67;
+    double radar_velocity_var = 68;
+    bool is_frame_abnormal = 69;
+    bool cv_error_fitting = 70;
+    bool modality_error_fitting = 71;
+    bool ctra_error_fitting = 72;
+    Eigen3D global_xyz_modality_filter = 73;
+    double measure_yaw_pose = 74;
+    double measure_yaw_vel = 75;
+    double measure_yaw_pose_flag = 76;
+    double measure_yaw_vel_flag = 77;
+    int32 front_priority_idx = 78;
+    bool output_error_fitting = 79;
+    double output_velocity_var = 80;
+    int32 radar_velocity_type = 81;
+    Eigen3D global_velocity_ca = 82;
+    Eigen3D global_acceleration_ca = 83;
+    Eigen3D global_velocity_measure_ca = 84;
+    double global_rot_var = 85;
+    double yaw_rate = 86;
+    bool aeb_valid = 87;
+    bool fcw_valid = 88;
+    Eigen3D global_velocity_diff = 89;
+    bool aeb_vel_flag = 90;
+    int32 out_fine_cls_aeb = 91;
+    Eigen3D global_velocity_output_traj = 92;
+    bool radar_crossing = 93;
+    int64 aebflag = 94;
+    int64 fcwflag = 95;
+    int64 hpflag = 96;
+    double posnlgt_before_binding = 97;
+    double posnlat_before_binding = 98;
+    double visionposx_before_binding = 99;
+    double visionposy_before_binding = 100;
+    int32 occ_cls = 101;
+    double rv120_xpos = 102;
+    double rv30_xpos = 103;
+    double bev_xpos = 104;
+    double radar_xpos = 105;
+    double gp_rv_xpos = 106;
+    double gp_bev_xpos = 107;
+    double radar_ed_rv_xpos = 108;
+    double radar_ed_bev_xpos = 109;
+    double fianl_xpos = 110;
+}
+
+message EgoBox {
+    Eigen3D coord_attr_xyz = 1;
+    Eigen3D coord_attr_velocity = 2;
+    Eigen3D coord_attr_acc = 3;
+    Eigen3D coord_attr_lwh = 4;
+    Quaternion coord_attr_orientation = 5;
+    bool is_stationary = 6;
+    int64 track_id = 7;
+    double fusion_obj_estimn_agdir = 8;
+    double fusion_obj_estimn_crvt = 9;
+    double fusion_obj_info_typ = 10;
+    double fusion_obj_info_sidenear = 11;
+    double fusion_obj_info_mtnpat = 12;
+    double fusion_obj_info_mtnpathist = 13;
+    double fusion_obj_info_indcrbrkli = 14;
+    double fusion_obj_info_indcrturn = 15;
+    double fusion_obj_info_indcrhzrdli = 16;
+    double fusion_obj_ppty_idn = 17;
+    double fusion_obj_ppty_sts = 18;
+    double fusion_obj_ppty_cllsnmtgtnbybrkgprimqly = 19;
+    double fusion_obj_ppty_cllsnwarnfwdqly = 20;
+    double fusion_obj_visinfo_visionposx = 21;
+    double fusion_obj_visinfo_visionposy = 22;
+    int32 front_priority = 23;
+}
+
+message OutputData {
+    Head head = 1;
+    repeated OutputObject objects = 2;  // 接口
+}
